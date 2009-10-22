@@ -1,0 +1,58 @@
+<?php 
+// $Id$
+/**
+@file  module file for read only module
+*/
+
+function readonlymode_menu() {
+  $items = array();
+  $access = array('access content');
+  $items['admin/settings/readonlymode'] = array(
+    'title' => t('Read only mode setting'),
+    'description' => t('Settings for read only mode'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('readonlymode_setting'),
+    'access arguments' => $access,
+  );
+  return $items;
+}
+
+// readonlymode setting form
+function readonlymode_setting() {
+  $form  = array();
+  $res = variable_get('readonlymode', '0');
+  $form['readonlymode'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Disable posting content?'),
+      '#default_value' => $res == '0'? unchecked : checked
+    );
+    $form['readonlymode_path']= array(
+      '#type' => 'textfield',
+      '#title' => t('Path of page to shown in read only mode (e.g. like site status page )'),
+      '#default_value' => variable_get('readonlymode_path', ''),
+      '#size' => 40,
+      '#description' => t('Enter the path of message page'),
+    );
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save'),
+    );
+  return $form; 
+}
+
+// readonlymode settings form submitted
+function readonlymode_setting_submit($form, &$form_state) {
+    drupal_set_message(t('The settings has been saved.'));
+    variable_set('readonlymode', $form_state['values']['readonlymode']);
+    variable_set('readonlymode_path', $form_state['values']['readonlymode_path']);
+}
+
+function readonlymode_form_alter(&$form, $form_state, $form_id) {
+  if (isset($form['#node']) && $form_id == $form['#node']->type .'_node_form')  {
+    $res =variable_get('readonlymode', '0');
+    if ( $res == 1 ) {    
+      drupal_set_message(t('Site is in read only mode, so no content can be posted.')); // messgae to be displayed on the site
+      drupal_goto(variable_get('readonlymode_path', '')); // page of the warning page to displayed
+     }
+   }
+}

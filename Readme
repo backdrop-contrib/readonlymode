@@ -1,0 +1,5 @@
+This module is for administrative pupose. For example you want to run some update, so for the duration of update you want to disble all postings, at that time this module comes to help you.
+
+Usage of this module is very simple.
+Install it and go to the settings page of romode module.
+Here check the chackbox and give the path of status page, where you have posted details about the status of site.
