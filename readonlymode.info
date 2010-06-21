@@ -1,12 +1,6 @@
 ; $Id$
 name = "Read Only Mode"
-description = "This module locked the site from postings."
+description = "This module will lock your site for any node and/or comment postings."
 core = "6.x"
-package ="Administration"
-
-; Information added by drupal.org packaging script on 2009-02-21
-version = "6.x-1.x"
-core = "6.x"
-project = "readonlymode"
 
 
