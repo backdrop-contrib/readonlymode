@@ -1,58 +1,69 @@
 <?php 
 // $Id$
 /**
-@file  module file for read only module
+ * @file
+ * The Read Only Mode module adds another option to the Site Maintenance page
+ * With this option, it is possible to keep the site online but only disable content moderation.
+ */
+
+/**
+* Implementation of hook_form_alter().
+* Permit posting of content
 */
-
-function readonlymode_menu() {
-  $items = array();
-  $access = array('access content');
-  $items['admin/settings/readonlymode'] = array(
-    'title' => t('Read only mode setting'),
-    'description' => t('Settings for read only mode'),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('readonlymode_setting'),
-    'access arguments' => $access,
-  );
-  return $items;
-}
-
-// readonlymode setting form
-function readonlymode_setting() {
-  $form  = array();
-  $res = variable_get('readonlymode', '0');
-  $form['readonlymode'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Disable posting content?'),
-      '#default_value' => $res == '0'? unchecked : checked
-    );
-    $form['readonlymode_path']= array(
-      '#type' => 'textfield',
-      '#title' => t('Path of page to shown in read only mode (e.g. like site status page )'),
-      '#default_value' => variable_get('readonlymode_path', ''),
-      '#size' => 40,
-      '#description' => t('Enter the path of message page'),
-    );
-    $form['submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Save'),
-    );
-  return $form; 
-}
-
-// readonlymode settings form submitted
-function readonlymode_setting_submit($form, &$form_state) {
-    drupal_set_message(t('The settings has been saved.'));
-    variable_set('readonlymode', $form_state['values']['readonlymode']);
-    variable_set('readonlymode_path', $form_state['values']['readonlymode_path']);
-}
-
 function readonlymode_form_alter(&$form, $form_state, $form_id) {
-  if (isset($form['#node']) && $form_id == $form['#node']->type .'_node_form')  {
-    $res =variable_get('readonlymode', '0');
-    if ( $res == 1 ) {    
-      drupal_set_message(t('Site is in read only mode, so no content can be posted.')); // messgae to be displayed on the site
-      drupal_goto(variable_get('readonlymode_path', '')); // page of the warning page to displayed
-     }
-   }
+  if (variable_get('site_readonly', FALSE)) {
+    switch ($form_id) {
+      case 'comment_form':
+      case $form['#node']->type .'_node_form':
+        $form = array();
+        $form['comment'] = array('#value' => t('Site is in read only mode, so no content can be posted.'));
+        break;
+    }
+  }
+  return $form;
+}
+
+/**
+* Implementation of hook_init().
+* Displays message to the user when the site is in Read-Only mode
+*/
+function readonlymode_init() {
+  if (variable_get('site_readonly', FALSE)) {
+    $message = variable_get('site_readonly_message', t("@sitename is currently in maintenance. During this maintenance it is not possible to add or edit content (like comments and pages).", array("@sitename" => variable_get('site_name', 'drupal'))));    
+    if (!empty($message) ) {
+      drupal_set_message(variable_get('site_readonly_message', $message));
+    }
+  }
+}
+
+/**
+* Implementation of hook_form_FORM_ID_alter().
+* Alter the Site Maintenance form
+*/
+function readonlymode_form_system_site_maintenance_settings_alter(&$form, $form_state) {
+  if (!variable_get('site_offline', 0)) {
+    $form["read_only"] = array(
+      "#title" => "Read Only Mode",
+      "#type" => "fieldset",
+      "#weight" => 0,
+      "#collapsible" => TRUE,
+      "#collapsed" => variable_get('site_readonly', FALSE) ? FALSE : TRUE,
+    );
+    $form["read_only"]["site_readonly"] = array(
+      "#type" => "checkbox",
+      "#title" => t("Read only mode"),
+      "#description" => t('Put the site in read-only mode. When set to "Read-only", all content moderation (add/edit) will be impossible.'),
+      "#weight" => 0,
+      "#default_value" => variable_get('site_readonly', FALSE),
+    );
+    $form["read_only"]["site_readonly_message"] = array(
+      "#type" => "textarea",
+      "#title" => t("Site read-only message"),
+      "#description" => t("Message to show visitors when the site is in read-only mode. Leave this area empty to disable the display of a message."),
+      "#default_value" => variable_get('site_readonly_message', t("@sitename is currently in maintenance. During this maintenance it is not possible to add or edit content (like comments and pages).", array("@sitename" => variable_get('site_name', 'drupal')))),
+    );
+  }
+  else{
+    $form["site_offline"]["#description"] .= " <strong>" . ('To set the website in Read-Only Mode, you have to set the site status to Online first.') . "</strong>";
+  }
 }
