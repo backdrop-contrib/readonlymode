@@ -30,8 +30,12 @@ function readonlymode_form_alter(&$form, $form_state, $form_id) {
 function readonlymode_init() {
   if (variable_get('site_readonly', FALSE)) {
     $message = variable_get('site_readonly_message', t("@sitename is currently in maintenance. During this maintenance it is not possible to add or edit content (like comments and pages).", array("@sitename" => variable_get('site_name', 'drupal'))));    
+    $url = variable_get('site_readonly_url', '');
     if (!empty($message) ) {
-      drupal_set_message(variable_get('site_readonly_message', $message));
+      if (!empty($url)) {
+        $message .= ' <span class="read_more">' . l(t('Read more'), $url) . '</span>';
+      }
+      drupal_set_message($message);
     }
   }
 }
@@ -62,8 +66,27 @@ function readonlymode_form_system_site_maintenance_settings_alter(&$form, $form_
       "#description" => t("Message to show visitors when the site is in read-only mode. Leave this area empty to disable the display of a message."),
       "#default_value" => variable_get('site_readonly_message', t("@sitename is currently in maintenance. During this maintenance it is not possible to add or edit content (like comments and pages).", array("@sitename" => variable_get('site_name', 'drupal')))),
     );
+    $form["read_only"]["site_readonly_url"] = array(
+      "#type" => "textfield",
+      "#title" => t("'Read more' link"),
+      "#description" => t("This url (e.g. node/2) will be added as a <em>Read more</em> link after the message entered above. This is optional."),
+      "#default_value" => variable_get('site_readonly_url', ''),
+    );
+    $form['#validate'][] = 'readonlymode_form_validate';
   }
   else{
     $form["site_offline"]["#description"] .= " <strong>" . ('To set the website in Read-Only Mode, you have to set the site status to Online first.') . "</strong>";
+  }
+}
+
+/**
+* Implementation of hook_form_FORM_ID_validate().
+* path_admin_form
+*/
+function readonlymode_form_validate(&$form, $form_state) {
+  $path = $form_state['values']['site_readonly_url'];
+  $item = menu_get_item($path);
+  if (!$item || !$item['access']) {
+    form_set_error('site_readonly_url', t("The path '@link_path' is either invalid or you do not have access to it.", array('@link_path' => $path)));
   }
 }
