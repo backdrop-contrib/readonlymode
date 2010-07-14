@@ -84,9 +84,10 @@ function readonlymode_form_system_site_maintenance_settings_alter(&$form, $form_
 * path_admin_form
 */
 function readonlymode_form_validate(&$form, $form_state) {
-  $path = $form_state['values']['site_readonly_url'];
-  $item = menu_get_item($path);
-  if (!$item || !$item['access']) {
-    form_set_error('site_readonly_url', t("The path '@link_path' is either invalid or you do not have access to it.", array('@link_path' => $path)));
+  if ($path = $form_state['values']['site_readonly_url']) {
+    $item = menu_get_item($path);
+    if (!$item || !$item['access']) {
+      form_set_error('site_readonly_url', t("The path '@link_path' is either invalid or you do not have access to it.", array('@link_path' => $path)));
+    }
   }
 }
