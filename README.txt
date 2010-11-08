@@ -9,6 +9,7 @@ back to the production environment, without losing data!
 How? The 'Read Only Mode' module puts your site in a Read-Only modus, where people can still access all nodes and comments. 
 
 Usage of this module is very simple:
-* Install the modules and navigate to the maintenance settings page (admin/settings/site-maintenance).
+* After installing you can find the option to enable read-only mode for your site under 
+  "Site Configuration" -> "Site Maintenance" (path: admin/settings/site-maintenance)
 * Here you can put your site in Read-Only mode, and leave a message for your visitors.
 * During this Read-Only mode, all users are permitted from posting nodes and/or comments. 
