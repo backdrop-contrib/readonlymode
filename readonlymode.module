@@ -14,16 +14,24 @@
 function readonlymode_form_alter(&$form, $form_state, $form_id) {
   if (variable_get('site_readonly', FALSE)) {
     switch ($form_id) {
-      case 'comment_form': // Disable comments
-      case 'user_register': // Disable user creation
-      case 'user_profile_form': // Disable user edit
-      case $form['#node']->type .'_node_form': // Disable node/add
-        $form = array();
-        if ($url = variable_get('site_readonly_url', '')) {
-          drupal_goto($url);
+      case 'comment_form':                      // Disable comments
+      case 'user_register':                     // Disable user creation
+      case 'user_profile_form':                 // Disable user edit
+      case $form['#node']->type .'_node_form':  // Disable node/add
+      case 'node_admin_content':                // Disable admin content moderation
+      case 'comment_admin_overview':            // Disable admin comment moderation
+        global $user;
+        if ($user->uid != 1) {
+          $form = array();
+          if ($url = variable_get('site_readonly_url', '')) {
+            drupal_goto($url);
+          }
+          else{
+            $form['notice'] = array('#value' => _readonlymode_notice());
+          }
         }
-        else{
-          $form['notice'] = array('#value' => _readonlymode_notice());
+        else {
+          drupal_set_message(t('The site is currently set to read-only, content moderation is disabled for all users but you.'), 'error');
         }
         break;
     }
