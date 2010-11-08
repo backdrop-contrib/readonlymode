@@ -16,6 +16,7 @@ function readonlymode_form_alter(&$form, $form_state, $form_id) {
     switch ($form_id) {
       case 'comment_form': // Disable comments
       case 'user_register': // Disable user creation
+      case 'user_profile_form': // Disable user edit
       case $form['#node']->type .'_node_form': // Disable node/add
         $form = array();
         if ($url = variable_get('site_readonly_url', '')) {
@@ -29,25 +30,6 @@ function readonlymode_form_alter(&$form, $form_state, $form_id) {
   }
   return $form;
 }
-
-/**
-* Implementation of hook_init().
-* Displays message to the user when the site is in Read-Only mode
-*/
-/*
-function readonlymode_init() {
-  if (variable_get('site_readonly', FALSE)) {
-    $message = _readonlymode_notice();
-    $url = variable_get('site_readonly_url', '');
-    if (!empty($message) ) {
-      if (!empty($url)) {
-        $message .= ' <span class="read_more">' . l(t('Read more'), $url) . '</span>';
-      }
-      drupal_set_message($message);
-    }
-  }
-}
-*/
 
 /**
 * Implementation of hook_form_FORM_ID_alter().
