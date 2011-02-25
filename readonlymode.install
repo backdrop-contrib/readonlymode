@@ -1,5 +1,4 @@
 <?php 
-// $Id$
 /**
  * @file
  * Update hook and uninstaller for the Read Only Mode module

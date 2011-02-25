@@ -1,4 +1,3 @@
-; $Id$
 name = "Read Only Mode"
 description = "This module will lock your site for any node and/or comment postings."
 core = "6.x"
