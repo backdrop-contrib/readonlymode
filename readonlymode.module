@@ -13,10 +13,11 @@
 function readonlymode_form_alter(&$form, $form_state, $form_id) {
   if (variable_get('site_readonly', FALSE)) {
     switch ($form_id) {
+      case 'webform_client_form_' . @$form['#node']->nid:  // Disable webforms
       case 'comment_form':                      // Disable comments
       case 'user_register':                     // Disable user creation
       case 'user_profile_form':                 // Disable user edit
-      case $form['#node']->type .'_node_form':  // Disable node/add
+      case @$form['#node']->type .'_node_form':  // Disable node/add
       case 'node_admin_content':                // Disable admin content moderation
       case 'comment_admin_overview':            // Disable admin comment moderation
         global $user;
@@ -42,7 +43,7 @@ function readonlymode_form_alter(&$form, $form_state, $form_id) {
 * Implementation of hook_form_FORM_ID_alter().
 * Alter the Site Maintenance form
 */
-function readonlymode_form_system_site_maintenance_settings_alter(&$form, $form_state) {
+function readonlymode_form_system_site_maintenance_mode_alter(&$form, $form_state) {
   if (!variable_get('site_offline', 0)) {
     $form["read_only"] = array(
       "#title" => "Read Only Mode",

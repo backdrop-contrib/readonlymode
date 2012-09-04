@@ -1,5 +1,7 @@
 name = "Read Only Mode"
 description = "This module will lock your site for any node and/or comment postings."
-core = "6.x"
+core = 7.x
+php = 5.2
+version = 7.x-1.x-dev
 
 
