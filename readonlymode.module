@@ -22,7 +22,10 @@ function readonlymode_form_alter(&$form, $form_state, $form_id) {
       case 'comment_admin_overview':            // Disable admin comment moderation
         global $user;
         if ($user->uid != 1) {
-          $form = array();
+          // Remove element children cleanly
+          foreach(element_children($form) as $key) {
+            unset($form[$key]);
+          }
           if ($url = variable_get('site_readonly_url', '')) {
             drupal_goto($url);
           }
