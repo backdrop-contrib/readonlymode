@@ -30,7 +30,7 @@ function readonlymode_form_alter(&$form, $form_state, $form_id) {
             drupal_goto($url);
           }
           else{
-            $form['notice'] = array('#markup' => _readonlymode_notice());
+            $form['notice'] = array('#value' => _readonlymode_notice());
           }
         }
         else {
