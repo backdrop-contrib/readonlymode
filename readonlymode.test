@@ -25,10 +25,9 @@ class ReadonlymodeTestCase extends DrupalWebTestCase {
     $this->drupalGet('node/add/article');
     $this->assertResponse('200', 'User can create article');
   }
-  
-  function testSometest(){
-    $this->testId=2;
-    $this->assert(true,'This is test message');
-  }
 
+  function testSometest(){
+    $this->testId = 2;
+    $this->assert(TRUE,'This is test message');
+  }
 }

@@ -1,7 +1,5 @@
 name = "Read Only Mode"
-description = "This module will lock your site for any node and/or comment postings."
+description = "This module will lock your site for any form postings."
 core = 7.x
 php = 5.2
-version = 7.x-1.x-dev
 files[]= readonlymode.test
-
