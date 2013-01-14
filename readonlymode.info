@@ -1,5 +1,4 @@
 name = "Read Only Mode"
 description = "This module will lock your site for any form postings."
 core = 7.x
-php = 5.2
 files[]= readonlymode.test
