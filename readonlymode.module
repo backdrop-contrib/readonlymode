@@ -44,11 +44,6 @@ function readonlymode_form_system_site_maintenance_mode_alter(&$form, $form_stat
       '#weight' => 0,
       '#collapsible' => TRUE,
       '#collapsed' => variable_get('site_readonly', FALSE) ? FALSE : TRUE,
-      '#states' => array(
-        'visible' => array(
-          ':input[name="maintenance_mode"]' => array('checked' => TRUE),
-        ),
-      ),
     );
     $form['read_only']['site_readonly'] = array(
       '#type' => 'checkbox',
@@ -127,7 +122,7 @@ function _readonlymode_form_check(&$form, $form_id, $submitted = TRUE) {
   $allowed = preg_split('/(\r\n|\n|\r)/', variable_get('site_readonly_forms_allowed', ''));
   $viewonly = preg_split('/(\r\n|\n|\r)/', variable_get('site_readonly_forms_viewonly', ''));
 
-  $check = TRUE || in_array($form_id, _readonlymode_default_forms_allowed()) || (!$submitted && in_array($form_id, _readonlymode_default_forms_viewonly()));
+  $check = FALSE || in_array($form_id, _readonlymode_default_forms_allowed()) || (!$submitted && in_array($form_id, _readonlymode_default_forms_viewonly()));
 
   foreach ($allowed as $word) {
     // Skip empty words.
