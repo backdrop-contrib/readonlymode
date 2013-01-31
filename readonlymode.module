@@ -2,10 +2,16 @@
 
 /**
  * @file
- * The Read Only Mode module adds another option to the Site Maintenance page.
  *
- * With this option, it is possible to keep the site online but only disable
- * content moderation.
+ * Read Only Mode provides an alternate to the built in 'Maintenance Mode' in
+ * Drupal. Instead of displaying a static text file to users while the site is
+ * in maintenance mode, Read Only Mode will allow access (reading) of new
+ * content while preventing the addition of new content (posting / submitting
+ * forms / etc).
+ *
+ * This allows the site to remain functional while maintenance is performed.
+ * This module also provides messaging to users and administrators to indicate
+ * that the site is in maintenance mode.
  */
 
 /**
