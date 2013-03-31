@@ -31,7 +31,7 @@ function readonlymode_permission() {
 * Permit posting of content.
 */
 function readonlymode_form_alter(&$form, $form_state, $form_id) {
-  if (!_readonlymode_form_check($form, $form['form_id']['#value'], FALSE)) {
+  if (!_readonlymode_form_check($form, $form_id, FALSE)) {
     // Check whether the form is a fresh form being served to the user.
     if (!isset($form_state['input']['form_token'])) {
       // If a redirect URL is set, then we redirect to it.
