@@ -236,6 +236,7 @@ function _readonlymode_default_forms_allowed() {
     'search_block_form',
     'system_modules',
     'system_site_maintenance_mode',
+    'views_exposed_form',
   );
 }
 
