@@ -3,4 +3,4 @@ description = "This module will lock your site for any form postings."
 core = 7.x
 package = Administration
 configure = admin/config/development/maintenance
-files[]= readonlymode.test
+files[] = readonlymode.test

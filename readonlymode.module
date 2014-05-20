@@ -56,8 +56,9 @@ function readonlymode_form_alter(&$form, $form_state, $form_id) {
     }
   }
 
-  if (user_access('readonlymode access forms') && variable_get('site_readonly', FALSE)) {
-    drupal_set_message(t('The site is currently set to read-only, content moderation is disabled for all users without the "Access all forms while in Read Only Mode" permission.'), 'warning', FALSE);
+  $path = current_path();
+  if (user_access('readonlymode access forms') && variable_get('site_readonly', FALSE) && $path != 'admin/config/development/maintenance') {
+    drupal_set_message(t('The site is currently set to read-only, content moderation is disabled for all users without the "Access all forms while in maintenance" permission. <a href="@link">Go online</a>.', array('@link' => url('admin/config/development/maintenance'))), 'warning', FALSE);
   }
 
   $form['#validate'][] = 'readonlymode_check_form_validate';
