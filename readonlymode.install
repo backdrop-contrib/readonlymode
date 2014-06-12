@@ -1,7 +1,11 @@
 <?php
+/**
+ * @file
+ * Update hook and uninstaller for the Read Only Mode module
+ */
 
 /**
- * Implementation of hook_install().
+ * Implements hook_install().
  */
 function readonlymode_install() {
   // Set our weight so that we execute last, to avoid other modules
@@ -10,8 +14,7 @@ function readonlymode_install() {
 }
 
 /**
- * @file
- * Update hook and uninstaller for the Read Only Mode module
+ * Implements hook_uninstall().
  */
 function readonlymode_uninstall() {
   variable_del('site_readonly');
@@ -23,8 +26,9 @@ function readonlymode_uninstall() {
 }
 
 /**
- * Update our weight so that we execute last, to avoid other
- * modules adding to forms after we clear them out.
+ * Update our weight so that we execute last.
+ *
+ * This avoids other modules adding to forms after we clear them out.
  */
 function readonlymode_update_7100() {
   db_update('system')
