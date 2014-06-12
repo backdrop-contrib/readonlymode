@@ -15,19 +15,6 @@
  */
 
 /**
- * Implements hook_module_implements_alter().
- *
- * Make sure our form alter runs last.
- */
-function readonlymode_module_implements_alter(&$implementations, $hook) {
-  if ($hook == 'form_alter') {
-    $group = $implementations['readonlymode'];
-    unset($implementations['readonlymode']);
-    $implementations['readonlymode'] = $group;
-  }
-}
-
-/**
 * Implementation of hook_permission().
 * Create permission to allow access to forms while in read only mode
 */
@@ -52,8 +39,19 @@ function readonlymode_form_alter(&$form, $form_state, $form_id) {
         drupal_goto($url);
       }
       else {
-        // Replace FAPI #after_build handlers with our block form.
-        $form['#after_build'] = array('readonlymode_block_form');
+        // Remove FAPI #after_build handlers.
+        $form['#after_build'] = array();
+        // Remove all elements of the form.
+        foreach (element_children($form) as $key) {
+          if(!in_array($key, array('form_id', 'form_token', 'form_build_id'))) {
+            unset($form[$key]);
+          }
+        }
+        $form['readonly_notice'] = array(
+          '#markup' => _readonlymode_notice(),
+          '#prefix' => '<div class="messages warning">',
+          '#suffix' => '</div>',
+        );
       }
     }
   }
@@ -64,28 +62,6 @@ function readonlymode_form_alter(&$form, $form_state, $form_id) {
   }
 
   $form['#validate'][] = 'readonlymode_check_form_validate';
-}
-
-/**
- * After build callback to block the form.
- *
- * @see readonlymode_form_alter().
- */
-function readonlymode_block_form($form) {
-  // Remove all elements of the form.
-  foreach (element_children($form) as $key) {
-    if(!in_array($key, array('form_id', 'form_token', 'form_build_id'))) {
-      unset($form[$key]);
-    }
-  }
-
-  $form['readonly_notice'] = array(
-    '#markup' => _readonlymode_notice(),
-    '#prefix' => '<div class="messages warning">',
-    '#suffix' => '</div>',
-  );
-
-  return $form;
 }
 
 /**
