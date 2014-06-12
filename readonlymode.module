@@ -15,6 +15,21 @@
  */
 
 /**
+ * Indicate the form has been blocked by readonlymode.
+ */
+define('READONLYMODE_FORM_DENIED', 0);
+
+/**
+ * Indicate the form has been made view only by readonlymode.
+ */
+define('READONLYMODE_FORM_VIEWONLY', 1);
+
+/**
+ * Indicate the form has allowed by readonlymode.
+ */
+define('READONLYMODE_FORM_ALLOWED', 2);
+
+/**
  * Implements hook_module_implements_alter().
  *
  * Make sure our form alter runs last.
@@ -44,7 +59,8 @@ function readonlymode_permission() {
 * Permit posting of content.
 */
 function readonlymode_form_alter(&$form, $form_state, $form_id) {
-  if (!_readonlymode_form_check($form, $form_id, FALSE)) {
+  $mode = _readonlymode_form_check($form_id);
+  if ($mode != READONLYMODE_FORM_ALLOWED) {
     // Check whether the form is a fresh form being served to the user.
     if (!isset($form_state['input']['form_token'])) {
       // If a redirect URL is set, then we redirect to it.
@@ -86,6 +102,28 @@ function readonlymode_block_form($form) {
   );
 
   return $form;
+}
+
+/**
+ * After build callback to render read only forms.
+ */
+function readonlymode_readonly_form($element) {
+  if (isset($element['#type'])) {
+    if (in_array($element['#type'], array('button', 'image_button', 'submit', ))) {
+      $element['#access'] = FALSE;
+    }
+    else {
+      $element['#attributes']['readonly'] = 'readonly';
+      $element['#attributes']['disabled'] = 'disabled';
+    }
+  }
+
+  // Recurse for any child elements.
+  foreach (element_children($element) as $key) {
+    $element[$key] = readonlymode_readonly_form($element[$key]);
+  }
+
+  return $element;
 }
 
 /**
@@ -193,40 +231,65 @@ function _readonlymode_notice_form_not_saved() {
 
 /**
  * Internal handler to check whether this form is to be restricted.
- * Returns TRUE if the form is allowed, FALSE otherwise.
+ *
+ * @param $form_id
+ *   The ID of the form we want to check.
+ *
+ * @return int
+ *   - READONLYMODE_FORM_DENIED: The form has been blocked.
+ *   - READONLYMODE_FORM_VIEWONLY: The form should be view only.
+ *   - READONLYMODE_FORM_ALLOWED: The form has been allowed.
  */
-function _readonlymode_form_check(&$form, $form_id, $submitted = TRUE) {
-  // If not in read-only mode, allow the form.
-  if (!variable_get('site_readonly', FALSE)) {
-    return TRUE;
+function _readonlymode_form_check($form_id) {
+  // Get hold of our cache.
+  $cache = &drupal_static(__FUNCTION__, NULL);
+
+  // If NULL, we need to check the non-form specific options.
+  if (!isset($cache)) {
+    // If not in read-only mode, allow the form.
+    if (!variable_get('site_readonly', FALSE)) {
+      $cache = READONLYMODE_FORM_ALLOWED;
+    }
+    // Admins can access all forms.
+    elseif (user_access('readonlymode access forms')) {
+      $cache = READONLYMODE_FORM_ALLOWED;
+    }
+    // Indicate that we have a more complicated answer.
+    else {
+      $cache = array();
+    }
   }
 
-  // Admins can access all forms.
-  if (user_access('readonlymode access forms')) {
-    return TRUE;
+  // If we have a scalar value, we don't need to check specific forms.
+  if (!is_array($cache)) {
+    return $cache;
   }
 
-  // Is the form in the list of default forms? Then allow access.
-  if (in_array($form_id, _readonlymode_default_forms_allowed())) {
-    return TRUE;
+  // Look at form specific level if required.
+  if (!isset($cache[$form_id])) {
+    // Is the form in the list of default forms? Then allow access.
+    if (in_array($form_id, _readonlymode_default_forms_allowed())) {
+      $cache[$form_id] = READONLYMODE_FORM_ALLOWED;
+    }
+    // Is the form in the list of read-only forms? Then allow access.
+    elseif (in_array($form_id, _readonlymode_default_forms_viewonly())) {
+      $cache[$form_id] = READONLYMODE_FORM_VIEWONLY;
+    }
+    // Check if the form is in the custom list of allowed forms. If so, allow.
+    elseif(_readonlymode_form_list_check($form_id, variable_get('site_readonly_forms_allowed', ''))) {
+      $cache[$form_id] = READONLYMODE_FORM_ALLOWED;
+    }
+    // Check if the form is in the custom list of allowed read-only forms.
+    elseif (_readonlymode_form_list_check($form_id, variable_get('site_readonly_forms_viewonly', ''))) {
+      $cache[$form_id] = READONLYMODE_FORM_VIEWONLY;
+    }
+    // Otherwise we need to deny access.
+    else {
+      $cache[$form_id] = READONLYMODE_FORM_DENIED;
+    }
   }
 
-  // Is the form in the list of read-only forms? Then allow access.
-  if (!$submitted && in_array($form_id, _readonlymode_default_forms_viewonly())) {
-    return TRUE;
-  }
-
-  // Check if the form is in the custom list of allowed forms. If so, allow.
-  if(_readonlymode_form_list_check($form_id, variable_get('site_readonly_forms_allowed', ''))) {
-    return TRUE;
-  }
-
-  // Check if the form is in the custom list of allowed read-only forms.
-  if (!$submitted && _readonlymode_form_list_check($form_id, variable_get('site_readonly_forms_viewonly', ''))) {
-    return TRUE;
-  }
-
-  return FALSE;
+  return $cache[$form_id];
 }
 
 /**
@@ -280,7 +343,7 @@ function _readonlymode_default_forms_viewonly() {
  */
 function readonlymode_check_form_validate($form, &$form_state) {
   // Check for read-only mode, whether we are allowed this form,
-  if (!_readonlymode_form_check($form, $form['form_id']['#value'], TRUE)) {
+  if (_readonlymode_form_check($form['form_id']['#value']) != READONLYMODE_FORM_ALLOWED) {
     form_set_error('', _readonlymode_notice_form_not_saved());
   }
 }
