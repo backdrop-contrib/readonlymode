@@ -359,3 +359,28 @@ function readonlymode_check_form_validate($form, &$form_state) {
     form_set_error('', _readonlymode_notice_form_not_saved());
   }
 }
+
+/**
+ *  Implements hook_block_info().
+ */
+function readonlymode_block_info() {
+  $blocks = array(
+    'readonlymode_block' => array(
+      'info' => t('Read only mode block'),
+    ),
+  );
+  return $blocks;
+}
+
+/**
+ *  Implements hook_block_view().
+ */
+function readonlymode_block_view($delta = '') {
+  // block will be displayed only site is in readonly mode
+  if ($delta == 'readonlymode_block' && variable_get('site_readonly', FALSE) == TRUE) {
+    $block = array();
+    $block['subject'] = t('Read only mode block');
+    $block['content'] = _readonlymode_notice();
+    return $block;
+  }
+}
