@@ -10,30 +10,39 @@
 function readonlymode_install() {
   // Set our weight so that we execute last, to avoid other modules
   // adding to forms after we clear them out.
-  readonlymode_update_7100();
+  module_set_weight('readonlymode', 9999);
 }
 
 /**
  * Implements hook_uninstall().
  */
 function readonlymode_uninstall() {
-  variable_del('site_readonly');
-  variable_del('site_readonly_forms_allowed');
-  variable_del('site_readonly_forms_viewonly');
-  variable_del('site_readonly_message_form_not_saved');
-  variable_del('site_readonly_message');
-  variable_del('site_readonly_url');
+  state_del('site_readonly');
 }
 
 /**
- * Update our weight so that we execute last.
+ * Implements hook_update_N().
  *
- * This avoids other modules adding to forms after we clear them out.
+ * Move Read Only Mode settings from variable to config.
  */
-function readonlymode_update_7100() {
-  db_update('system')
-    ->fields(array('weight' => 9999))
-    ->condition('type', 'module', '=')
-    ->condition('name', 'readonlymode', '=')
-    ->execute();
+function readonlymode_update_1000() {
+  // Migrate site_readonly variable to state.
+  state_set('site_readonly', update_variable_get('site_readonly', FALSE));
+
+  // Migrate all other variables to config.
+  $config = config('readonlymode.settings');
+  $config->set('site_readonly_forms_allowed', update_variable_get('site_readonly_forms_allowed', ''));
+  $config->set('site_readonly_forms_viewonly', update_variable_get('site_readonly_forms_viewonly', ''));
+  $config->set('site_readonly_message_form_not_saved', update_variable_get('site_readonly_message_form_not_saved', ''));
+  $config->set('site_readonly_message', update_variable_get('site_readonly_message', ''));
+  $config->set('site_readonly_url', update_variable_get('site_readonly_url', ''));
+  $config->save();
+
+  // Delete all variables.
+  update_variable_del('site_readonly');
+  update_variable_del('site_readonly_forms_allowed');
+  update_variable_del('site_readonly_forms_viewonly');
+  update_variable_del('site_readonly_message_form_not_saved');
+  update_variable_del('site_readonly_message');
+  update_variable_del('site_readonly_url');
 }

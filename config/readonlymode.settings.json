@@ -1,0 +1,8 @@
+{
+  "_config_name": "readonlymode.settings",
+  "site_readonly_forms_allowed": "",
+  "site_readonly_forms_viewonly": "",
+  "site_readonly_message_form_not_saved": "",
+  "site_readonly_message": "",
+  "site_readonly_url": ""
+}

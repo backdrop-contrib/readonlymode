@@ -1,5 +1,9 @@
-name = "Read Only Mode"
-description = "This module will lock your site for any form postings."
-core = 7.x
+name = Read Only Mode
+description = Lock site config and content so maintenance and deployments can happen without taking the site offline.
+backdrop = 1.x
+type = module
 package = Administration
 configure = admin/config/development/maintenance
+tags[] = Development
+tags[] = System
+tags[] = Content
