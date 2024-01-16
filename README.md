@@ -23,6 +23,16 @@ database is pushed back to the production server and Read Only Mode disabled.
 Read Only Mode can be checked, enabled or disabled using the user interface,
 bee or drush.
 
+### Differences from Drupal 7
+- Uses 'state' and 'config' rather than 'variables'.
+- Form IDs updated in allow/view only lists to reflect Backdrop equivalents.
+- Dedicated Bee command added to simply operations.
+- Drush command uses `state-set` and `state-get` rather than `variable-set` and
+`variable-get`.
+- Includes patch from [Issue 2458051](https://www.drupal.org/project/readonlymode/issues/2458051)
+to fix issue with View Only forms.
+- Includes an API for other modules to modify the default form lists.
+
 ## Installation
 <!--
 List the steps needed to install and configure the module. Add/remove steps as
@@ -34,16 +44,6 @@ necessary.
 - Visit the configuration page under Administration > Configuration >
 Development > Maintenance mode (admin/config/development/maintenance) to
 customize settings.
-
-### Differences from Drupal 7
-- Uses 'state' and 'config' rather than 'variables'.
-- Form IDs updated in allow/view only lists to reflect Backdrop equivalents.
-- Dedicated Bee command added to simply operations.
-- Drush command uses `state-set` and `state-get` rather than `variable-set` and
-`variable-get`.
-- Includes patch from [Issue 2458051](https://www.drupal.org/project/readonlymode/issues/2458051)
-to fix issue with View Only forms.
-- Includes an API for other modules to modify the default form lists.
 
 ## Usage
 Enable and disable Read Only Mode using the "Read only mode" checkbox at
