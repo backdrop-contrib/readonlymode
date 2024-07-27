@@ -2,6 +2,10 @@ name = Read Only Mode
 description = Lock site config and content so maintenance and deployments can happen without taking the site offline.
 backdrop = 1.x
 type = module
+
+maintainers[yorkshire-pudding] = Martin Price
+maintainers_wanted = TRUE
+
 package = Administration
 configure = admin/config/development/maintenance
 tags[] = Development
